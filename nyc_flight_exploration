@@ -1,0 +1,49 @@
+#Install Package
+library(tidyverse)
+library(nycflights13)
+
+
+##Which airport in NYC has the most average delayed time
+flights %>%
+  select(origin, dep_delay, arr_delay) %>%
+  filter(arr_delay >= 0, dep_delay >= 0) %>%
+  group_by(origin) %>%
+  summarize(avg_dep = mean(dep_delay),
+            avg_arr = mean(arr_delay)) %>%
+  arrange(desc(avg_dep), desc(avg_arr))
+  
+##Which airport has highest number of flight
+##EWR 121K flights
+flights %>%
+  select(origin, flight) %>%
+  count(origin) %>%
+  mutate(perc = formattable::percent(n / sum(n)))
+
+##Explore data
+## May has most flight
+flights %>%
+  select(origin, flight, month) %>%
+  filter(origin == 'EWR') %>%
+  count(month) %>%
+  mutate(perc = formattable::percent(n / sum(n))) %>%
+  arrange(-n)
+
+##Popular destination in May
+
+##Top 5 destination from EWR in May
+flights %>%
+  select(origin, dest, month) %>%
+  filter(month == 5, origin == 'EWR') %>%
+  count(dest) %>%
+  arrange(-n) %>%
+  head(5)
+
+##Top Carrier from EWR to ATL in May
+flights %>%
+  select(origin, dest, month, carrier) %>%
+  filter(month == 5, origin == 'EWR', dest == 'ORD') %>%
+  count(carrier) %>%
+  mutate(perc = formattable::percent(n / sum(n))) %>%
+  left_join(airlines, by = "carrier") %>%
+  arrange(-n)
+
